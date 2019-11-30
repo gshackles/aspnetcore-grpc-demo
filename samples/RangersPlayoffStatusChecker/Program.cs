@@ -44,6 +44,7 @@ namespace RangersPlayoffStatusChecker
                 .ConfigureServices((hostContext, services) =>
                 {
                     services.AddHostedService<Worker>();
+                    services.AddSingleton<RangersService>();
                 })
                 .UseSerilog();
     }
