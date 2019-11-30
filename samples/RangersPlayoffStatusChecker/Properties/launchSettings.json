@@ -1,0 +1,10 @@
+﻿{
+  "profiles": {
+    "RangersPlayoffStatusChecker": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "DOTNET_ENVIRONMENT": "Development"
+      }
+    }
+  }
+}
