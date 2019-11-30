@@ -46,6 +46,7 @@ namespace RangersPlayoffStatusChecker
                     services.AddHostedService<Worker>();
                     services.AddSingleton<RangersService>();
                 })
-                .UseSerilog();
+                .UseSerilog()
+                .UseWindowsService();
     }
 }
