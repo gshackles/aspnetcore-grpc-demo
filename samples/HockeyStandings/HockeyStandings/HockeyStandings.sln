@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29411.108
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HockeyStandingsService", "HockeyStandingsService\HockeyStandingsService.csproj", "{32D88EE3-423B-4658-AC6A-BEBE5C7509C5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HockeyStandingsClient", "HockeyStandingsClient\HockeyStandingsClient.csproj", "{9B348F9A-589F-4145-99A9-8762DB38442D}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{32D88EE3-423B-4658-AC6A-BEBE5C7509C5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{32D88EE3-423B-4658-AC6A-BEBE5C7509C5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{32D88EE3-423B-4658-AC6A-BEBE5C7509C5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{32D88EE3-423B-4658-AC6A-BEBE5C7509C5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9B348F9A-589F-4145-99A9-8762DB38442D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9B348F9A-589F-4145-99A9-8762DB38442D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9B348F9A-589F-4145-99A9-8762DB38442D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9B348F9A-589F-4145-99A9-8762DB38442D}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {D1574290-3A39-4367-9E21-2F66FE7B870A}
+	EndGlobalSection
+EndGlobal

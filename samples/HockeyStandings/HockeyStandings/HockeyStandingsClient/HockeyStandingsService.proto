@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+option csharp_namespace = "HockeyStandings";
+
+package HockeyStandings;
+
+service HockeyStandings {
+  rpc GetTeamRecord (GetTeamRecordRequest) returns (TeamRecord);
+  rpc GetAllTeamRecords (GetAllTeamRecordsRequest) returns (stream TeamRecord);
+  rpc GetTeamRecords (stream GetTeamRecordRequest) returns (stream TeamRecord);
+}
+
+message Team {
+	int32 id = 1;
+	string name = 2;
+}
+
+message TeamRecord {
+	Team team = 1;
+	int32 regulationWins = 2;
+	int32 points = 3;
+	int32 divisionRank = 4;
+	int32 conferenceRank = 5;
+	int32 wildCardRank = 6;
+}
+
+message GetTeamRecordRequest {
+	string query = 1;
+}
+
+message GetAllTeamRecordsRequest {
+}
