@@ -8,18 +8,17 @@ namespace HockeyStandingsService
 {
     public class Startup
     {
-        public void ConfigureServices(IServiceCollection services) => 
-            services.AddGrpc();
+        public void ConfigureServices(IServiceCollection services) =>
+            services.AddGrpc(options => 
+                options.Interceptors.Add<TracingInterceptor>());
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
-            {
                 app.UseDeveloperExceptionPage();
-            }
 
             app.UseRouting();
+            app.UseMiddleware<LoggingMiddleware>();
 
             app.UseEndpoints(endpoints =>
             {

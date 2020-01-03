@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Grpc.Core;
+using Grpc.Core.Interceptors;
 using Grpc.Net.Client;
 using HockeyStandings;
 
@@ -12,7 +13,8 @@ namespace HockeyStandingsClient
     {
         static async Task Main(string[] args)
         {
-            var channel = GrpcChannel.ForAddress("https://localhost:5001");
+            var channel = GrpcChannel.ForAddress("https://localhost:5001").Intercept(new TracingInterceptor());
+
             var client = new HockeyStandings.HockeyStandings.HockeyStandingsClient(channel);
 
             await MakeUnaryCalls(client);

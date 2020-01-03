@@ -11,7 +11,7 @@ namespace HockeyStandingsService.Services
 
         public HockeyStandingsService(NhlService nhlService) => 
             _nhlService = nhlService;
-
+        
         public override async Task<HockeyStandings.TeamRecord> GetTeamRecord(GetTeamRecordRequest request, ServerCallContext context)
         {
             var record = (await _nhlService.GetTeamRecords())
