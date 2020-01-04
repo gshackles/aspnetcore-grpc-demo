@@ -9,7 +9,7 @@ namespace HockeyStandingsService
 {
     public class Startup
     {
-        private static readonly Random _random = new Random();
+        private static HealthCheckResult _lastHealthCheckResult = HealthCheckResult.Unhealthy();
 
         public void ConfigureServices(IServiceCollection services)
         {
@@ -17,12 +17,14 @@ namespace HockeyStandingsService
                 options.Interceptors.Add<TracingInterceptor>());
 
             services.AddGrpcHealthChecks()
-                .AddCheck("", () => _random.Next(1, 3) switch
-                {
-                    1 => HealthCheckResult.Healthy(),
-                    2 => HealthCheckResult.Unhealthy(),
-                    _ => HealthCheckResult.Degraded(),
-                });
+                .AddCheck("", () => 
+                    // cycle through the different statuses in order of Degraded -> Healthy -> Unhealthy -> Degraded
+                    _lastHealthCheckResult = _lastHealthCheckResult.Status switch
+                    {
+                        HealthStatus.Degraded => HealthCheckResult.Healthy(),
+                        HealthStatus.Healthy => HealthCheckResult.Unhealthy(),
+                        _ => HealthCheckResult.Degraded(),
+                    });
 
             services.AddGrpcReflection();
         }

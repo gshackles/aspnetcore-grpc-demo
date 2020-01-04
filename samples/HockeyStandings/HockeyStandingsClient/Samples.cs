@@ -85,12 +85,37 @@ namespace HockeyStandingsClient
         private static void PrintRecord(TeamRecord record) =>
             Console.WriteLine($"{record.Team.Name}: {record.Points} points, division rank {record.DivisionRank}");
 
-        public static async Task MakeHealthChecks(CallInvoker channel)
+        public static async Task MakeSingleHealthCheck(CallInvoker channel)
         {
             var client = new Health.HealthClient(channel);
             var response = await client.CheckAsync(new HealthCheckRequest());
 
             Console.WriteLine($"Health Check Status: {response.Status}");
+        }
+
+        public static async Task WatchHealthChecks(CallInvoker channel)
+        {
+            var client = new Health.HealthClient(channel);
+
+            Console.WriteLine("Observing health checks, press enter to exit");
+
+            var source = new CancellationTokenSource();
+            var watch = Task.Run(async () =>
+            {
+                var call = client.Watch(new HealthCheckRequest(), cancellationToken: source.Token);
+
+                try
+                {
+                    await foreach (var message in call.ResponseStream.ReadAllAsync(source.Token))
+                        Console.WriteLine($"[{DateTime.Now}] {message.Status}");
+                }
+                catch (RpcException ex) when (ex.StatusCode == StatusCode.Cancelled) { }
+            }, source.Token);
+
+            Console.ReadLine();
+
+            source.Cancel();
+            await watch;
         }
 
         public static async Task MakeServerReflectionCall(CallInvoker channel)
