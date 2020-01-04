@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Grpc.Core;
 using Grpc.Health.V1;
 using Grpc.Net.Client;
+using Grpc.Reflection.V1Alpha;
 using HockeyStandings;
 
 namespace HockeyStandingsClient
@@ -107,6 +108,21 @@ namespace HockeyStandingsClient
 
             source.Cancel();
             await watch;
+        }
+
+        public static async Task MakeServerReflectionCall(CallInvoker channel)
+        {
+            var client = new ServerReflection.ServerReflectionClient(channel);
+            var listServicesRequest = new ServerReflectionRequest {ListServices = ""};
+            
+            var call = client.ServerReflectionInfo();
+            await call.RequestStream.WriteAsync(listServicesRequest);
+            await call.ResponseStream.MoveNext();
+            await call.RequestStream.CompleteAsync();
+
+            Console.WriteLine("Services:");
+            foreach (var item in call.ResponseStream.Current.ListServicesResponse.Service)
+                Console.WriteLine($"- {item.Name}");
         }
     }
 }

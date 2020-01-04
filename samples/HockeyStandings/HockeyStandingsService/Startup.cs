@@ -23,6 +23,8 @@ namespace HockeyStandingsService
                     2 => HealthCheckResult.Unhealthy(),
                     _ => HealthCheckResult.Degraded(),
                 });
+
+            services.AddGrpcReflection();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -37,6 +39,7 @@ namespace HockeyStandingsService
             {
                 endpoints.MapGrpcService<Services.HockeyStandingsService>();
                 endpoints.MapGrpcHealthChecksService();
+                endpoints.MapGrpcReflectionService();
             });
         }
     }

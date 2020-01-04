@@ -33,6 +33,9 @@ namespace HockeyStandingsClient
                     case '5':
                         await Samples.MakeHealthChecks(channel);
                         break;
+                    case '6':
+                        await Samples.MakeServerReflectionCall(channel);
+                        break;
                     case 'q':
                     case 'Q':
                         return;
@@ -53,6 +56,7 @@ namespace HockeyStandingsClient
             Console.WriteLine("3) Bidirectional streaming");
             Console.WriteLine("4) Streaming with cancellation");
             Console.WriteLine("5) Health checks");
+            Console.WriteLine("6) Server reflection");
             Console.WriteLine("q) Quit");
             Console.WriteLine();
             Console.Write("> ");
