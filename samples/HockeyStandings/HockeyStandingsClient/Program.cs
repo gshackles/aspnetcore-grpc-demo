@@ -1,12 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Threading;
+using System.Linq;
 using System.Threading.Tasks;
-using Grpc.Core;
 using Grpc.Core.Interceptors;
-using Grpc.Health.V1;
 using Grpc.Net.Client;
-using HockeyStandings;
 
 namespace HockeyStandingsClient
 {
@@ -18,112 +14,54 @@ namespace HockeyStandingsClient
 
             var client = new HockeyStandings.HockeyStandings.HockeyStandingsClient(channel);
 
-            //await MakeUnaryCalls(client);
-            //await MakeServerStreamingCall(client);
-            //await MakeBidirectionalStreamingCall(client);
-            //await MakeStreamingCallWithCancellation(client);
-            //await MakeHealthChecks(channel);
-
-            Console.ReadLine();
-        }
-
-        private static async Task MakeUnaryCalls(HockeyStandings.HockeyStandings.HockeyStandingsClient client)
-        {
-            Console.WriteLine("Enter team names to look up their records, empty string will exit...");
-
-            string query;
-
-            while ((query = Console.ReadLine()) != "")
+            while (true)
             {
-                var request = new GetTeamRecordRequest {Query = query};
-
-                var record = await client.GetTeamRecordAsync(request);
-
-                PrintRecord(record);
-            }
-        }
-
-        private static async Task MakeServerStreamingCall(HockeyStandings.HockeyStandings.HockeyStandingsClient client)
-        {
-            using var call = client.GetAllTeamRecords(new GetAllTeamRecordsRequest());
-
-            await foreach (var record in call.ResponseStream.ReadAllAsync())
-                PrintRecord(record);
-        }
-
-        private static async Task MakeBidirectionalStreamingCall(HockeyStandings.HockeyStandings.HockeyStandingsClient client)
-        {
-            Console.WriteLine("Enter team names to look up their records, empty string will execute operation...");
-
-            var queries = new List<string>();
-            string line;
-
-            while ((line = Console.ReadLine()) != "")
-                queries.Add(line);
-
-            var call = client.GetTeamRecords();
-
-            var readResponse = Task.Run(async () =>
-            {
-                await foreach (var record in call.ResponseStream.ReadAllAsync())
-                    PrintRecord(record);
-            });
-
-            var requestStream = call.RequestStream;
-
-            foreach (var query in queries)
-                await requestStream.WriteAsync(new GetTeamRecordRequest {Query = query});
-
-            await requestStream.CompleteAsync();
-            await readResponse;
-        }
-
-        private static async Task MakeStreamingCallWithCancellation(HockeyStandings.HockeyStandings.HockeyStandingsClient client)
-        {
-            try
-            {
-                var source = new CancellationTokenSource();
-                source.CancelAfter(TimeSpan.FromSeconds(3));
-
-                using var call = client.GetAllTeamRecords(new GetAllTeamRecordsRequest());
-                
-                await foreach (var record in call.ResponseStream.ReadAllAsync(source.Token))
-                    PrintRecord(record);
-            }
-            catch (RpcException ex) when (ex.StatusCode == StatusCode.Cancelled)
-            {
-                Console.WriteLine($"Received cancellation: status={ex.Status}, code={ex.StatusCode}");
-            }
-        }
-
-        private static void PrintRecord(TeamRecord record) =>
-            Console.WriteLine($"{record.Team.Name}: {record.Points} points, division rank {record.DivisionRank}");
-
-        private static async Task MakeHealthChecks(CallInvoker channel)
-        {
-            await Task.Delay(5000);
-
-            var client = new Health.HealthClient(GrpcChannel.ForAddress("https://localhost:5001"));
-
-            Console.WriteLine("Observing health checks, press enter to exit");
-
-            var source = new CancellationTokenSource();
-            var watch = Task.Run(async () =>
-            {
-                var call = client.Watch(new HealthCheckRequest(), cancellationToken: source.Token);
-
-                try
+                switch (GetMenuChoice())
                 {
-                    await foreach (var message in call.ResponseStream.ReadAllAsync(source.Token))
-                        Console.WriteLine($"[{DateTime.Now}] {message.Status}");
+                    case '1':
+                        await Samples.MakeUnaryCalls(client);
+                        break;
+                    case '2':
+                        await Samples.MakeServerStreamingCall(client);
+                        break;
+                    case '3':
+                        await Samples.MakeBidirectionalStreamingCall(client);
+                        break;
+                    case '4':
+                        await Samples.MakeStreamingCallWithCancellation(client);
+                        break;
+                    case '5':
+                        await Samples.MakeHealthChecks(channel);
+                        break;
+                    case 'q':
+                    case 'Q':
+                        return;
+                    default:
+                        Console.WriteLine("Invalid choice, please try again.");
+                        break;
                 }
-                catch (RpcException ex) when (ex.StatusCode == StatusCode.Cancelled) { }
-            }, source.Token);
+            }
+        }
 
-            Console.ReadLine();
+        private static char GetMenuChoice()
+        {
+            Console.WriteLine();
+            Console.WriteLine("--------------");
+            Console.WriteLine("Choose an option:");
+            Console.WriteLine("1) Unary");
+            Console.WriteLine("2) Server streaming");
+            Console.WriteLine("3) Bidirectional streaming");
+            Console.WriteLine("4) Streaming with cancellation");
+            Console.WriteLine("5) Health checks");
+            Console.WriteLine("q) Quit");
+            Console.WriteLine();
+            Console.Write("> ");
 
-            source.Cancel();
-            await watch;
+            var choice = Console.ReadLine()?.First() ?? '0';
+
+            Console.WriteLine();
+
+            return choice;
         }
     }
 }
