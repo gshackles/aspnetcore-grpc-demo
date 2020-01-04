@@ -17,7 +17,7 @@ namespace HockeyStandingsClient
 
             var client = new HockeyStandings.HockeyStandings.HockeyStandingsClient(channel);
 
-            await MakeUnaryCalls(client);
+            //await MakeUnaryCalls(client);
             //await MakeServerStreamingCall(client);
             //await MakeBidirectionalStreamingCall(client);
             //await MakeStreamingCallWithCancellation(client);
@@ -88,9 +88,9 @@ namespace HockeyStandingsClient
                 await foreach (var record in call.ResponseStream.ReadAllAsync(source.Token))
                     PrintRecord(record);
             }
-            catch (Exception ex)
+            catch (RpcException ex) when (ex.StatusCode == StatusCode.Cancelled)
             {
-                Console.WriteLine(ex);
+                Console.WriteLine($"Received cancellation: status={ex.Status}, code={ex.StatusCode}");
             }
         }
 
