@@ -1,16 +1,29 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using System;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Hosting;
 
 namespace HockeyStandingsService
 {
     public class Startup
     {
-        public void ConfigureServices(IServiceCollection services) =>
-            services.AddGrpc(options => 
+        private static readonly Random _random = new Random();
+
+        public void ConfigureServices(IServiceCollection services)
+        {
+            services.AddGrpc(options =>
                 options.Interceptors.Add<TracingInterceptor>());
+
+            services.AddGrpcHealthChecks()
+                .AddCheck("", () => _random.Next(1, 3) switch
+                {
+                    1 => HealthCheckResult.Healthy(),
+                    2 => HealthCheckResult.Unhealthy(),
+                    _ => HealthCheckResult.Degraded(),
+                });
+        }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
@@ -23,11 +36,7 @@ namespace HockeyStandingsService
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapGrpcService<Services.HockeyStandingsService>();
-
-                endpoints.MapGet("/", async context =>
-                {
-                    await context.Response.WriteAsync("Communication with gRPC endpoints must be made through a gRPC client. To learn how to create a client, visit: https://go.microsoft.com/fwlink/?linkid=2086909");
-                });
+                endpoints.MapGrpcHealthChecksService();
             });
         }
     }

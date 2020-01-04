@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Grpc.Core;
 using Grpc.Core.Interceptors;
+using Grpc.Health.V1;
 using Grpc.Net.Client;
 using HockeyStandings;
 
@@ -21,6 +22,7 @@ namespace HockeyStandingsClient
             //await MakeServerStreamingCall(client);
             //await MakeBidirectionalStreamingCall(client);
             //await MakeStreamingCallWithCancellation(client);
+            //await MakeHealthChecks(channel);
 
             Console.ReadLine();
         }
@@ -96,5 +98,32 @@ namespace HockeyStandingsClient
 
         private static void PrintRecord(TeamRecord record) =>
             Console.WriteLine($"{record.Team.Name}: {record.Points} points, division rank {record.DivisionRank}");
+
+        private static async Task MakeHealthChecks(CallInvoker channel)
+        {
+            await Task.Delay(5000);
+
+            var client = new Health.HealthClient(GrpcChannel.ForAddress("https://localhost:5001"));
+
+            Console.WriteLine("Observing health checks, press enter to exit");
+
+            var source = new CancellationTokenSource();
+            var watch = Task.Run(async () =>
+            {
+                var call = client.Watch(new HealthCheckRequest(), cancellationToken: source.Token);
+
+                try
+                {
+                    await foreach (var message in call.ResponseStream.ReadAllAsync(source.Token))
+                        Console.WriteLine($"[{DateTime.Now}] {message.Status}");
+                }
+                catch (RpcException ex) when (ex.StatusCode == StatusCode.Cancelled) { }
+            }, source.Token);
+
+            Console.ReadLine();
+
+            source.Cancel();
+            await watch;
+        }
     }
 }
