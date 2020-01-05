@@ -16,6 +16,7 @@ namespace HockeyStandingsService
             services.AddGrpc(options =>
                 options.Interceptors.Add<TracingInterceptor>());
 
+            services.Configure<HealthCheckPublisherOptions>(options => options.Period = TimeSpan.FromSeconds(5));
             services.AddGrpcHealthChecks()
                 .AddCheck("", () => 
                     // cycle through the different statuses in order of Degraded -> Healthy -> Unhealthy -> Degraded
